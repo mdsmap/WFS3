@@ -1,0 +1,10 @@
+# dotenv environment variables file
+.env
+
+# dynamic database files
+*.db
+
+# Dependency directories
+node_modules/
+
+data/

@@ -1,0 +1,46 @@
+{
+  "name": "wfs3",
+  "version": "1.0.0",
+  "description": "\"# WFS3\"",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mdsmap/WFS3.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mdsmap/WFS3/issues"
+  },
+  "homepage": "https://github.com/mdsmap/WFS3#readme",
+  "dependencies": {
+    "@mapbox/mbtiles": "^0.11.0",
+    "cookie-parser": "^1.4.4",
+    "cors": "^2.8.5",
+    "dotenv": "^8.0.0",
+    "express": "^4.17.0",
+    "express-es6-template-engine": "^2.1.9",
+    "express-jwt": "^5.3.1",
+    "socket.io": "^2.2.0",
+    "spatialite": "^0.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.0"
+  },
+  "bin": "index.js",
+  "pkg": {
+    "assets": [
+      "views/**",
+      "node_modules/sqlite3/lib/binding/node-v64-win32-x64/**",
+      "node_modules/spatialite/dist/win32/x64/**"
+    ],
+    "targets": [
+      "node10-win-x64"
+    ]
+  }
+}

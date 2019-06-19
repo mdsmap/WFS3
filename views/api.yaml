@@ -1,0 +1,1176 @@
+openapi: 3.0.1
+info:
+  title: WFS 3.0 server
+  contact:
+    name: Andrea Aime - GeoSolutions
+    email: andrea.aime@geo-solutions.it
+  version: 2.16-SNAPSHOT
+externalDocs:
+  description: WFS specification
+  url: https://github.com/opengeospatial/WFS_FES
+servers:
+- url: http://cloudsdi.geo-solutions.it:80/geoserver/wfs3
+  description: This server
+tags:
+- name: Capabilities
+  description: Essential characteristics of this API including information about the
+    data.
+- name: Features
+  description: Access to data (features).
+paths:
+  /:
+    get:
+      tags:
+      - Capabilities
+      summary: landing page of this API
+      description: The landing page provides links to the API definition, the Conformance
+        statements and the metadata about the feature data in this dataset.
+      operationId: getLandingPage
+      responses:
+        200:
+          description: links to the API capabilities
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/root'
+            text/html:
+              schema:
+                type: string
+            application/xml:
+              schema:
+                type: string
+                format: binary
+            application/openapi+json;version=3.0:
+              schema:
+                type: string
+                format: binary
+            application/x-yaml:
+              schema:
+                $ref: '#/components/schemas/root'
+  /conformance:
+    get:
+      tags:
+      - Capabilities
+      summary: information about standards that this API conforms to
+      description: 'list all requirements classes specified in a standard (e.g., WFS
+        3.0 Part 1: Core) that the server conforms to'
+      operationId: getRequirementsClasses
+      responses:
+        200:
+          description: the URIs of all requirements classes supported by the server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/req-classes'
+            application/xml:
+              schema:
+                type: string
+                format: binary
+            application/x-yaml:
+              schema:
+                $ref: '#/components/schemas/req-classes'
+        default:
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exception'
+  /collections:
+    get:
+      tags:
+      - Capabilities
+      summary: describe the feature collections in the dataset
+      operationId: describeCollections
+      responses:
+        200:
+          description: Metdata about the feature collections shared by this API.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/content'
+            text/html:
+              schema:
+                type: string
+            application/xml:
+              schema:
+                type: string
+                format: binary
+            application/x-yaml:
+              schema:
+                $ref: '#/components/schemas/content'
+        default:
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exception'
+            text/html:
+              schema:
+                type: string
+  /collections/{collectionId}:
+    get:
+      tags:
+      - Capabilities
+      summary: describe the {collectionId} feature collection
+      operationId: describeCollection
+      parameters:
+      - $ref: '#/components/parameters/collectionId'
+      responses:
+        200:
+          description: Metadata about the {collectionId} collection shared by this
+            API.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/collectionInfo'
+            text/html:
+              schema:
+                type: string
+            application/xml:
+              schema:
+                type: string
+                format: binary
+            application/x-yaml:
+              schema:
+                $ref: '#/components/schemas/collectionInfo'
+        default:
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exception'
+            text/html:
+              schema:
+                type: string
+  /collections/{collectionId}/items:
+    get:
+      tags:
+      - Features
+      summary: retrieve features of feature collection {collectionId}
+      description: |-
+        Every feature in a dataset belongs to a collection. A dataset may consist of multiple feature collections. A feature collection is often a collection of features of a similar type, based on a common schema.\
+        Use content negotiation to request HTML or GeoJSON.
+      operationId: getFeatures
+      parameters:
+      - $ref: '#/components/parameters/collectionId'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/bbox'
+      - $ref: '#/components/parameters/time'
+      responses:
+        200:
+          description: Information about the feature collection plus the first features
+            matching the selection parameters.
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/featureCollectionGeoJSON'
+            text/html:
+              schema:
+                type: string
+            application/vnd.mapbox-vector-tile:
+              schema:
+                type: string
+                format: binary
+            text/xml; subtype=gml/2.1.2:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+                format: binary
+            application/vnd.google-earth.kml+xml:
+              schema:
+                type: string
+                format: binary
+            text/xml; subtype=gml/3.1.1:
+              schema:
+                type: string
+            application/gml+xml; version=3.2:
+              schema:
+                type: string
+                format: binary
+            text/xml; subtype=gml/3.2:
+              schema:
+                type: string
+            application/vnd.google-earth.kml xml:
+              schema:
+                type: string
+                format: binary
+            application/x-protobuf;type=mapbox-vector:
+              schema:
+                type: string
+                format: binary
+            application/gml+xml;version=3.2;profile=http://www.opengis.net/def/profile/ogc/2.0/gml-sf0:
+              schema:
+                type: string
+                format: binary
+        default:
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exception'
+            text/html:
+              schema:
+                type: string
+  /collections/{collectionId}/items/{featureId}:
+    get:
+      tags:
+      - Features
+      summary: retrieve a feature; use content negotiation to request HTML or GeoJSON
+      operationId: getFeature
+      parameters:
+      - $ref: '#/components/parameters/collectionId'
+      - $ref: '#/components/parameters/featureId'
+      responses:
+        200:
+          description: A feature.
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/featureGeoJSON'
+            text/html:
+              schema:
+                type: string
+            application/vnd.mapbox-vector-tile:
+              schema:
+                type: string
+                format: binary
+            text/xml; subtype=gml/2.1.2:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+                format: binary
+            application/vnd.google-earth.kml+xml:
+              schema:
+                type: string
+                format: binary
+            text/xml; subtype=gml/3.1.1:
+              schema:
+                type: string
+            application/gml+xml; version=3.2:
+              schema:
+                type: string
+                format: binary
+            text/xml; subtype=gml/3.2:
+              schema:
+                type: string
+            application/vnd.google-earth.kml xml:
+              schema:
+                type: string
+                format: binary
+            application/x-protobuf;type=mapbox-vector:
+              schema:
+                type: string
+                format: binary
+            application/gml+xml;version=3.2;profile=http://www.opengis.net/def/profile/ogc/2.0/gml-sf0:
+              schema:
+                type: string
+                format: binary
+        default:
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exception'
+            text/html:
+              schema:
+                type: string
+  /tilingSchemes:
+    get:
+      tags:
+      - Tiles
+      summary: retrieve all available tiling schemes
+      operationId: getTilingSchemes
+      parameters:
+      - $ref: '#/components/parameters/tilingSchemeFormat'
+      responses:
+        200:
+          description: A list of tiling schemes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tilingSchemes'
+        default:
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exception'
+  /tilingSchemes/{tilingSchemeId}:
+    get:
+      tags:
+      - Tiles
+      summary: retrieve a tiling scheme by id
+      operationId: getTilingScheme
+      parameters:
+      - $ref: '#/components/parameters/tilingSchemeId'
+      - $ref: '#/components/parameters/tilingSchemeFormat'
+      responses:
+        200:
+          description: A tiling scheme.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tilingScheme'
+        default:
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exception'
+  /collections/{collectionId}/tiles/{tilingSchemeId}/{zoomLevel}/{row}/{column}:
+    get:
+      tags:
+      - Tiles
+      summary: retrieve a tile of the dataset
+      description: The tile in the requested tiling scheme, on the requested zoom
+        level in the tiling scheme, with the requested grid coordinates (row, column)
+        is returned. Each collection of the dataset is returned as a separate layer.
+        The collections and the feature properties to include in the tile representation
+        can be limited using query parameters.
+      operationId: getTilesDataset
+      parameters:
+      - $ref: '#/components/parameters/collectionId'
+      - $ref: '#/components/parameters/tilingSchemeId'
+      - $ref: '#/components/parameters/zoomLevel'
+      - $ref: '#/components/parameters/row'
+      - $ref: '#/components/parameters/column'
+      - $ref: '#/components/parameters/tileFormat'
+      responses:
+        200:
+          description: A tile of the dataset.
+          content:
+            application/vnd.mapbox-vector-tile:
+              schema:
+                type: string
+                format: binary
+        default:
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exception'
+  /collections/{collectionId}/tiles:
+    get:
+      tags:
+      - Tiles
+      summary: retrieve all available tiling schemes for the collection
+      operationId: getCollectionTilingSchemes
+      parameters:
+      - $ref: '#/components/parameters/collectionId'
+      responses:
+        200:
+          description: A list of tiling schemes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tilingSchemes'
+        default:
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exception'
+  /styles:
+    description: something
+    get:
+      tags:
+      - Styles
+      summary: retrieve all available styles from the dataset
+      operationId: getStyles
+      parameters:
+      - $ref: '#/components/parameters/styleFormat'
+      responses:
+        200:
+          description: A list of styles for the dataset
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/styles'
+        default:
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exception'
+    post:
+      tags:
+      - Styles
+      summary: 'add styles to the dataset '
+      operationId: addStyle
+      requestBody:
+        description: A single style.
+        content:
+          application/vnd.ogc.sld+xml: {}
+          application/vnd.ogc.se+xml: {}
+          text/vnd.ncwms.palette: {}
+      responses:
+        201:
+          description: Styles were created.
+          headers:
+            location:
+              description: The URL of the first created style
+              schema:
+                type: string
+        default:
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exception'
+  /styles/{styleId}:
+    description: something
+    get:
+      tags:
+      - Styles
+      summary: retrieve a style of the dataset by id
+      operationId: getStyle
+      parameters:
+      - $ref: '#/components/parameters/styleIdentifier'
+      - $ref: '#/components/parameters/styleFormat'
+      responses:
+        200:
+          description: A style of the dataset
+          content: {}
+        default:
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exception'
+    put:
+      tags:
+      - Styles
+      summary: replace a style from the dataset
+      operationId: replaceStyle
+      parameters:
+      - $ref: '#/components/parameters/styleIdentifier'
+      requestBody:
+        description: A single style.
+        content:
+          application/vnd.ogc.sld+xml: {}
+          application/vnd.ogc.se+xml: {}
+          text/vnd.ncwms.palette: {}
+      responses:
+        204:
+          description: Style was replaced.
+        default:
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exception'
+    delete:
+      tags:
+      - Styles
+      summary: delete a Style from the dataset
+      operationId: deleteStyle
+      parameters:
+      - $ref: '#/components/parameters/styleIdentifier'
+      responses:
+        204:
+          description: Style was deleted.
+        default:
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exception'
+  /collections/{collectionId}/styles:
+    description: something
+    get:
+      tags:
+      - Styles
+      summary: retrieve all available styles from the collection
+      operationId: getCollectionStyles
+      parameters:
+      - $ref: '#/components/parameters/collectionId'
+      - $ref: '#/components/parameters/styleFormat'
+      responses:
+        200:
+          description: A list of styles for the collection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/styles'
+        default:
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exception'
+    post:
+      tags:
+      - Styles
+      summary: 'add styles to the collection '
+      operationId: addCollectionStyle
+      parameters:
+      - $ref: '#/components/parameters/collectionId'
+      requestBody:
+        description: A single style.
+        content:
+          application/vnd.ogc.sld+xml: {}
+          application/vnd.ogc.se+xml: {}
+          text/vnd.ncwms.palette: {}
+      responses:
+        201:
+          description: Styles were created.
+          headers:
+            location:
+              description: The URL of the first created style
+              schema:
+                type: string
+        default:
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exception'
+  /collections/{collectionId}/styles/{styleId}:
+    description: something
+    get:
+      tags:
+      - Styles
+      summary: retrieve a style of the collection by id
+      operationId: getCollectionStyle
+      parameters:
+      - $ref: '#/components/parameters/collectionId'
+      - $ref: '#/components/parameters/styleIdentifier'
+      - $ref: '#/components/parameters/styleFormat'
+      responses:
+        200:
+          description: A style of the collection
+          content: {}
+        default:
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exception'
+    put:
+      tags:
+      - Styles
+      summary: replace a style from the collection
+      operationId: replaceCollectionStyle
+      parameters:
+      - $ref: '#/components/parameters/collectionId'
+      - $ref: '#/components/parameters/styleIdentifier'
+      requestBody:
+        description: A single style.
+        content:
+          application/vnd.ogc.sld+xml: {}
+          application/vnd.ogc.se+xml: {}
+          text/vnd.ncwms.palette: {}
+      responses:
+        204:
+          description: Style was replaced.
+        default:
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exception'
+    delete:
+      tags:
+      - Styles
+      summary: delete a Style from the dataset
+      operationId: deleteCollectionStyle
+      parameters:
+      - $ref: '#/components/parameters/collectionId'
+      - $ref: '#/components/parameters/styleIdentifier'
+      responses:
+        204:
+          description: Style was deleted.
+        default:
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exception'
+components:
+  schemas:
+    exception:
+      required:
+      - code
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+    root:
+      required:
+      - links
+      type: object
+      properties:
+        links:
+          type: array
+          example:
+          - href: http://data.example.org/
+            rel: self
+            type: application/json
+            title: this document
+          - href: http://data.example.org/api
+            rel: service
+            type: application/openapi+json;version=3.0
+            title: the API definition
+          - href: http://data.example.org/conformance
+            rel: conformance
+            type: application/json
+            title: WFS 3.0 conformance classes implemented by this server
+          - href: http://data.example.org/collections
+            rel: data
+            type: application/json
+            title: Metadata about the feature collections
+          items:
+            $ref: '#/components/schemas/link'
+    req-classes:
+      required:
+      - conformsTo
+      type: object
+      properties:
+        conformsTo:
+          type: array
+          example:
+          - http://www.opengis.net/spec/wfs-1/3.0/req/core
+          - http://www.opengis.net/spec/wfs-1/3.0/req/oas30
+          - http://www.opengis.net/spec/wfs-1/3.0/req/html
+          - http://www.opengis.net/spec/wfs-1/3.0/req/geojson
+          items:
+            type: string
+    link:
+      required:
+      - href
+      type: object
+      properties:
+        href:
+          type: string
+        rel:
+          type: string
+          example: prev
+        type:
+          type: string
+          example: application/geo+json
+        hreflang:
+          type: string
+          example: en
+    content:
+      required:
+      - collections
+      - links
+      type: object
+      properties:
+        links:
+          type: array
+          example:
+          - href: http://data.example.org/collections.json
+            rel: self
+            type: application/json
+            title: this document
+          - href: http://data.example.org/collections.html
+            rel: alternate
+            type: text/html
+            title: this document as HTML
+          - href: http://schemas.example.org/1.0/foobar.xsd
+            rel: describedBy
+            type: application/xml
+            title: XML schema for Acme Corporation data
+          items:
+            $ref: '#/components/schemas/link'
+        collections:
+          type: array
+          items:
+            $ref: '#/components/schemas/collectionInfo'
+    collectionInfo:
+      required:
+      - links
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+          description: identifier of the collection used, for example, in URIs
+          example: buildings
+        title:
+          type: string
+          description: human readable title of the collection
+          example: Buildings
+        description:
+          type: string
+          description: a description of the features in the collection
+          example: Buildings in the city of Bonn.
+        links:
+          type: array
+          example:
+          - href: http://data.example.org/collections/buildings/items
+            rel: item
+            type: application/geo+json
+            title: Buildings
+          - href: http://example.org/concepts/building.html
+            rel: describedBy
+            type: text/html
+            title: Feature catalogue for buildings
+          items:
+            $ref: '#/components/schemas/link'
+        extent:
+          $ref: '#/components/schemas/extent'
+        crs:
+          type: array
+          description: The coordinate reference systems in which geometries may be
+            retrieved. Coordinate reference systems are identified by a URI. The first
+            coordinate reference system is the coordinate reference system that is
+            used by default. This is always "http://www.opengis.net/def/crs/OGC/1.3/CRS84",
+            i.e. WGS84 longitude/latitude.
+          items:
+            type: string
+          default:
+          - http://www.opengis.net/def/crs/OGC/1.3/CRS84
+    extent:
+      type: object
+      properties:
+        crs:
+          type: string
+          description: Coordinate reference system of the coordinates in the spatial
+            extent (property `spatial`). In the Core, only WGS84 longitude/latitude
+            is supported. Extensions may support additional coordinate reference systems.
+          enum:
+          - http://www.opengis.net/def/crs/OGC/1.3/CRS84
+          default: http://www.opengis.net/def/crs/OGC/1.3/CRS84
+        spatial:
+          maxItems: 6
+          minItems: 4
+          type: array
+          description: West, north, east, south edges of the spatial extent. The minimum
+            and maximum values apply to the coordinate reference system WGS84 longitude/latitude
+            that is supported in the Core. If, for example, a projected coordinate
+            reference system is used, the minimum and maximum values need to be adjusted.
+          example:
+          - -180
+          - -90
+          - 180
+          - 90
+          items:
+            type: number
+        trs:
+          type: string
+          description: Temporal reference system of the coordinates in the temporal
+            extent (property `temporal`). In the Core, only the Gregorian calendar
+            is supported. Extensions may support additional temporal reference systems.
+          enum:
+          - http://www.opengis.net/def/uom/ISO-8601/0/Gregorian
+          default: http://www.opengis.net/def/uom/ISO-8601/0/Gregorian
+        temporal:
+          maxItems: 2
+          minItems: 2
+          type: array
+          description: Begin and end times of the temporal extent.
+          example:
+          - 2011-11-11T12:22:11Z
+          - 2012-11-24T12:32:43Z
+          items:
+            type: string
+            format: dateTime
+    featureCollectionGeoJSON:
+      required:
+      - features
+      - type
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - FeatureCollection
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/featureGeoJSON'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/link'
+        timeStamp:
+          type: string
+          format: dateTime
+        numberMatched:
+          minimum: 0
+          type: integer
+        numberReturned:
+          minimum: 0
+          type: integer
+    featureGeoJSON:
+      required:
+      - geometry
+      - properties
+      - type
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - Feature
+        geometry:
+          $ref: '#/components/schemas/geometryGeoJSON'
+        properties:
+          type: object
+          nullable: true
+        id:
+          oneOf:
+          - type: string
+          - type: integer
+    geometryGeoJSON:
+      required:
+      - type
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - Point
+          - MultiPoint
+          - LineString
+          - MultiLineString
+          - Polygon
+          - MultiPolygon
+          - GeometryCollection
+    tilingSchemes:
+      required:
+      - type
+      type: object
+      properties:
+        tilingSchemes:
+          type: array
+          items:
+            type: string
+            example: GoogleMapsCompatible
+    tilingScheme:
+      required:
+      - identifier
+      - type
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - TileMatrixSet
+        identifier:
+          type: string
+          example: default
+        TileMatrix:
+          type: array
+          items:
+            $ref: '#/components/schemas/tileMatrix'
+        boundingBox:
+          type: array
+          items:
+            $ref: '#/components/schemas/boundingBox'
+        supportedCrs:
+          type: string
+          example: http://www.opengis.net/def/crs/EPSG/0/3857
+          enum:
+          - http://www.opengis.net/def/crs/EPSG/0/3857
+        title:
+          type: string
+          example: Google Maps Compatible for the World
+        wellKnownScaleSet:
+          type: string
+          example: http://www.opengis.net/def/wkss/OGC/1.0/GoogleMapsCompatible
+          enum:
+          - http://www.opengis.net/def/wkss/OGC/1.0/GoogleMapsCompatible
+    tileMatrix:
+      required:
+      - type
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - TileMatrix
+        identifier:
+          type: string
+          example: "0"
+        MatrixHeight:
+          minimum: 0
+          type: integer
+          example: 1
+        MatrixWidth:
+          minimum: 0
+          type: integer
+          example: 1
+        TileHeight:
+          minimum: 0
+          type: integer
+          example: 256
+        TileWidth:
+          minimum: 0
+          type: integer
+          example: 256
+        scaleDenominator:
+          type: number
+          example: 2132.729583849784
+        topLeftCorner:
+          type: string
+          example: -20037508.340000 20037508.000000
+    boundingBox:
+      required:
+      - type
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - BoundingBox
+        crs:
+          type: string
+          example: http://www.opengis.net/def/crs/EPSG/0/3857
+        lowerCorner:
+          type: string
+          example: -20037508.340000 -20037508.000000
+        upperCorner:
+          type: string
+          example: 20037508.340000 20037508.000000
+    stylesArray:
+      required:
+      - id
+      type: object
+      properties:
+        identifier:
+          type: string
+          example: default
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/link'
+    styles:
+      required:
+      - type
+      type: object
+      properties:
+        styles:
+          type: array
+          items:
+            $ref: '#/components/schemas/stylesArray'
+  parameters:
+    limit:
+      name: limit
+      in: query
+      description: |
+        The optional limit parameter limits the number of items that are
+        presented in the response document.
+
+        Only items are counted that are on the first level of the collection in
+        the response document. Nested objects contained within the explicitly
+        requested items shall not be counted.
+      required: false
+      style: form
+      explode: false
+      schema:
+        maximum: 1000000
+        minimum: 1
+        type: integer
+        default: 1000000
+    bbox:
+      name: bbox
+      in: query
+      description: |
+        Only features that have a geometry that intersects the bounding box are selected. The bounding box is provided as four or six numbers, depending on whether the coordinate reference system includes a vertical axis (elevation or depth):
+        * Lower left corner, coordinate axis 1 * Lower left corner, coordinate axis 2 * Lower left corner, coordinate axis 3 (optional) * Upper right corner, coordinate axis 1 * Upper right corner, coordinate axis 2 * Upper right corner, coordinate axis 3 (optional)
+        The coordinate reference system of the values is WGS84 longitude/latitude (http://www.opengis.net/def/crs/OGC/1.3/CRS84) unless a different coordinate reference system is specified in the parameter `bbox-crs`.
+        For WGS84 longitude/latitude the values are in most cases the sequence of minimum longitude, minimum latitude, maximum longitude and maximum latitude. However, in cases where the box spans the antimeridian the first value (west-most box edge) is larger than the third value (east-most box edge).
+        If a feature has multiple spatial geometry properties, it is the decision of the server whether only a single spatial geometry property is used to determine the extent or all relevant geometries.
+      required: false
+      style: form
+      explode: false
+      schema:
+        maxItems: 6
+        minItems: 4
+        type: array
+        items:
+          type: number
+    time:
+      name: time
+      in: query
+      description: |-
+        Either a date-time or a period string that adheres to RFC 3339. Examples:
+        * A date-time: "2018-02-12T23:20:50Z" * A period: "2018-02-12T00:00:00Z/2018-03-18T12:31:12Z" or "2018-02-12T00:00:00Z/P1M6DT12H31M12S"
+        Only features that have a temporal property that intersects the value of `time` are selected.
+        If a feature has multiple temporal properties, it is the decision of the server whether only a single temporal property is used to determine the extent or all relevant temporal properties.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+    collectionId:
+      name: collectionId
+      in: path
+      description: Identifier (name) of a specific collection
+      required: true
+      schema:
+        type: string
+        enum:
+        - landsat8__B3_index
+        - zaatari__AgricultureSrf
+        - zaatari__CultureSrf
+        - zaatari__FacilitySrf
+        - zaatari__HydrographySrf
+        - zaatari__InformationPnt
+        - zaatari__RecreationSrf
+        - zaatari__SettlementSrf
+        - zaatari__StructurePnt
+        - zaatari__StructureSrf
+        - zaatari__TransportationGroundCrv
+        - zaatari__TransportationGroundSrf
+        - zaatari__UtilityInfrastructureSrf
+        - zaatari__o2s_A
+        - zaatari__o2s_L
+        - zaatari__osm_points
+        - zaatari__zaatari_worldview_timeseries_index
+        - test__countries
+        - sf__AggregateGeoFeature
+        - sf__EntitéGénérique
+        - sf__PrimitiveGeoFeature
+        - daraa__AgriculturePnt
+        - daraa__AgricultureSrf
+        - daraa__Cultivated_2011
+        - daraa__Cultivated_2012
+        - daraa__Cultivated_2013
+        - daraa__CulturePnt
+        - daraa__CultureSrf
+        - daraa__FacilityPnt
+        - daraa__FacilitySrf
+        - daraa__FieldBoundary_2011
+        - daraa__Health_2011
+        - daraa__Health_2012
+        - daraa__Health_2013
+        - daraa__HydrographyCrv
+        - daraa__HydrographySrf
+        - daraa__InformationPnt
+        - daraa__Inventory_2011
+        - daraa__Inventory_2012
+        - daraa__Inventory_2013
+        - daraa__MilitarySrf
+        - daraa__RecreationPnt
+        - daraa__RecreationSrf
+        - daraa__SettlementPnt
+        - daraa__SettlementSrf
+        - daraa__StructureCrv
+        - daraa__StructurePnt
+        - daraa__StructureSrf
+        - daraa__TransportationGroundCrv
+        - daraa__TransportationGroundPnt
+        - daraa__TransportationGroundSrf
+        - daraa__UtilityInfrastructureCrv
+        - daraa__UtilityInfrastructurePnt
+        - daraa__VegetationSrf
+        - daraa__daraa_landsat8_timeseries_index
+        - daraa__daraa_worldview_timeseries_index
+        - daraa__o2s_A
+        - daraa__o2s_L
+        - daraa__o2s_P
+    featureId:
+      name: featureId
+      in: path
+      description: Local identifier of a specific feature
+      required: true
+      schema:
+        type: string
+    f2:
+      name: f
+      in: query
+      description: |-
+        \
+                The format of the response. If no value is provided, the standard http rules apply, i.e., the accept header shall be used to determine the format.\
+                Pre-defined values are "json" and "mvt". The response to other values is determined by the server.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        enum:
+        - json
+        - mvt
+      example: json
+    tilingSchemeFormat:
+      name: f
+      in: query
+      description: |-
+        \
+                The format of the response. If no value is provided, the standard http rules apply, i.e., the accept header shall be used to determine the format.\
+                The only pre-defined value is "json". The response to other values is determined by the server.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        enum:
+        - json
+      example: json
+    tileFormat:
+      name: f
+      in: query
+      description: |-
+        \
+                The format of the response. If no value is provided, the standard http rules apply, i.e., the accept header shall be used to determine the format.\
+                The only pre-defined value is "mvt". The response to other values is determined by the server.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        enum:
+        - mvt
+      example: mvt
+    tilingSchemeId:
+      name: tilingSchemeId
+      in: path
+      description: Local identifier of a specific tiling scheme
+      required: true
+      schema:
+        type: string
+    zoomLevel:
+      name: zoomLevel
+      in: path
+      description: Zoom level of the tile
+      required: true
+      schema:
+        type: string
+    row:
+      name: row
+      in: path
+      description: Row index of the tile on the selected zoom level
+      required: true
+      schema:
+        type: string
+    column:
+      name: column
+      in: path
+      description: Column index of the tile on the selected zoom level
+      required: true
+      schema:
+        type: string
+    styleFormat:
+      name: f
+      in: query
+      description: |-
+        \
+                The format of the response. If no value is provided, the standard http rules apply, i.e., the accept header shall be used to determine the format.\
+                The only pre-defined value is "sld". The response to other values is determined by the server.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        enum:
+        - sld
+      example: sld
+    styleIdentifier:
+      name: styleId
+      in: path
+      description: Local identifier of a specific style, for a collection or dataset.
+        A list of all available styles can be found under the /styles or /collections/{collectionId}/styles
+        paths.
+      required: true
+      schema:
+        type: string
