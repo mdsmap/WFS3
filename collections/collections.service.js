@@ -1,4 +1,4 @@
-const collectionsModel = require('./collections.model.sqlite');
+const collectionsModel = require('./collections.model.mbtiles');
 
 async function getCollections(req) {
     return {

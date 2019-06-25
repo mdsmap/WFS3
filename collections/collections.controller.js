@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const collectionsService = require('./collections.service');
+
+const tiletype = require('@mapbox/tiletype')
 const authorize = require('../_helpers/authorize')
 
 router.get('/', featureCollections );
@@ -10,7 +12,6 @@ router.get('/:collectionId/items/:featureId', retrieveItem );
 
 router.get('/:collectionId/tiles',  (req, res) =>{ res.json({ "tilingSchemes": [ "GoogleMapsCompatible" ] }) });
 router.get('/:collectionId/tiles/:tes/:z/:x/:y', retrieveTile );
-
 
 module.exports = router;                
 
@@ -42,15 +43,8 @@ function retrieveItem(req, res) {
 function retrieveTile(req, res) {
 	collectionsService.getTile(req)
 	.then((tile) =>{
-		if(tile=="tile not found") res.status(200).json(tile)
-		else{
-			res.writeHead(200,{
-				"Content-Encoding": "gzip",
-				"Content-Type": "application/x-protobuf"
-				})
-			res.end(tile)
-		}
-
+		res.writeHead(200, tiletype.headers(tile))
+		res.end(tile)
 	})
-	.catch(err => res.status(200).json(err.message) )
+	.catch(err => res.status(400).json(err.message) )
 }
